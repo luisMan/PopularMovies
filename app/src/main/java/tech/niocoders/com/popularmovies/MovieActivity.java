@@ -1,5 +1,6 @@
 package tech.niocoders.com.popularmovies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -211,7 +212,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     }
 
 
-    //pupulate moview grid ui
+    //pupulate movie ui
     public void populateMoviesGridUi()
     {
         grid.setAdapter(new MovieImageAdapter(this));
@@ -221,7 +222,13 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                                     int position, long id) {
                Toast.makeText(MovieActivity.this, "" + position,
                        Toast.LENGTH_SHORT).show();
+                Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
+                childActivity.putExtra("description", movieData.get(position)); // using the (String name, Parcelable value) overload!
+                startActivity(childActivity);
             }
         });
+
     }
+
+
 }
