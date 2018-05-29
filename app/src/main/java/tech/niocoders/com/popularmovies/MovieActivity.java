@@ -6,16 +6,19 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,18 +33,37 @@ import java.util.ArrayList;
 public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
     public GridView grid;
     private static final String SEARCH_QUERY_URL_EXTRA = "movies";
+    private static final String SEARCH_SORT_BY_QUERY = "sort_by";
     private static final int SEACH_QUERY_MOVIE_ID=22;
     public static String movie_json="";
     //progressbar and network text notification
     private TextView networkError;
     private ProgressBar loaderIndicator;
     private ArrayList<Movies> movieData;
+    private String SORT_BY ="popularity.desc";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(getResources().getString(R.string.app_name));
+        //toolbar.setSubtitle("Subtitle");
+
+        setSupportActionBar(toolbar);
+
+        //toolbar.setNavigationIcon(android.R.drawable.ic_dialog_alert);
+        toolbar.setNavigationOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                       // Toast.makeText(MovieActivity.this, "Toolbar", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
         //Gridlayout
         grid = findViewById(R.id.moviesGrid);
         //EditText network error
@@ -52,14 +74,62 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         //lets instanciate movieData
         movieData =  new ArrayList<>();
 
+
         //lets just check if there is any network available if not lets save our url to bundle
-       makeMoviesSearch();
+        if (savedInstanceState != null) {
+            SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
+            movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
+            getSupportLoaderManager().initLoader(SEACH_QUERY_MOVIE_ID, savedInstanceState, this);
+            //Toast.makeText(getApplicationContext(),SORT_BY,Toast.LENGTH_LONG).show();
+        }else{
+            //Toast.makeText(getApplicationContext(),"making a refresh",Toast.LENGTH_LONG).show();
+            makeMoviesSearch();
+        }
+
+
+
+        /*
+         * Initialize the loader
+         */
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_movie, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_movie, menu);
+
+        MenuItem item = menu.findItem(R.id.spinner);
+        final Spinner spinner = (Spinner) item.getActionView();
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.sort_movies, R.layout.spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(AdapterView<?> arg0, View v, int position, long id)
+            {
+               //lets make the calls base on item selected
+                if(spinner.getItemAtPosition(position).toString().equals("most popular"))
+                {
+                    SORT_BY = "popularity.desc";
+                }else{
+                    SORT_BY = "vote_average.desc";
+                }
+
+                //lets proceed to the search
+                makeMoviesSearch();
+            }
+
+            public void onNothingSelected(AdapterView<?> arg0)
+            {
+
+            }
+        });
+
         return true;
     }
 
@@ -69,11 +139,6 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -96,11 +161,13 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                     return;
                 }
 
-                loaderIndicator.setVisibility(View.VISIBLE);
+
 
                 if (!movie_json.equals("")) {
+                    loaderIndicator.setVisibility(View.INVISIBLE);
                     deliverResult(movie_json);
                 } else {
+                    loaderIndicator.setVisibility(View.VISIBLE);
                     forceLoad();
                 }
             }
@@ -127,6 +194,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             }
 
 
+
             @Override
             public void deliverResult(String data) {
                 movie_json = data;
@@ -149,11 +217,13 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
           return;
         }
 
-        //lets construct our url and then lets save it to keep data info on our bundle in case of phone rotation
-        URL moviesUrl = MovieUtilities.getMostPopularMovies(getResources().getString(R.string.movie_api_key_v3));
+
+        URL moviesUrl = MovieUtilities.getMostPopularMovies(getResources().getString(R.string.movie_api_key_v3),SORT_BY);
+
 
         Bundle movieBundle = new Bundle();
-        movieBundle.putString(SEARCH_QUERY_URL_EXTRA,moviesUrl.toString());
+        movieBundle.putString(SEARCH_QUERY_URL_EXTRA, moviesUrl.toString());
+        movieBundle.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
 
         LoaderManager loaderManager =  getSupportLoaderManager();
         Loader<String> movieSearch = loaderManager.getLoader(SEACH_QUERY_MOVIE_ID);
@@ -201,16 +271,27 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        if(movie_json!=null)
-        {
             loaderIndicator.setVisibility(View.INVISIBLE);
-            outState.putString(SEARCH_QUERY_URL_EXTRA,movie_json);
-        }
+            if(null!=movie_json && !TextUtils.isEmpty(movie_json)) {
+                //Toast.makeText(getApplicationContext(),"saving json :"+movie_json,Toast.LENGTH_LONG).show();
+                outState.putString(SEARCH_QUERY_URL_EXTRA, movie_json);
+            }
+            if(null!=SORT_BY&& !TextUtils.isEmpty(SORT_BY)) {
+                //Toast.makeText(getApplicationContext(),"saving sort by :"+SORT_BY,Toast.LENGTH_LONG).show();
+                outState.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
+            }
+
+        super.onSaveInstanceState(outState);
 
     }
 
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
+        SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
+        loaderIndicator.setVisibility(View.INVISIBLE);
+    }
 
     //pupulate movie ui
     public void populateMoviesGridUi()
@@ -220,8 +301,8 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-               Toast.makeText(MovieActivity.this, "" + position,
-                       Toast.LENGTH_SHORT).show();
+             //  Toast.makeText(MovieActivity.this, "" + position,
+                 //      Toast.LENGTH_SHORT).show();
                 Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
                 childActivity.putExtra("description", movieData.get(position)); // using the (String name, Parcelable value) overload!
                 startActivity(childActivity);

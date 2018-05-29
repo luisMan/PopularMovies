@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,20 +31,22 @@ public  class MovieUtilities {
 
     //sorting params
     public static String POPULARDESC="popularity.desc";
-
+    //https://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&api_key=e9825d3aecdf8950a5ff95458c8e9445
 
     //this method will create an url to get the most popular movies and will accept api key as a parameter to complete the search
     //http://api.themoviedb.org/3/discover/movie?api_key=e9825d3aecdf8950a5ff95458c8e9445
-    public static URL getMostPopularMovies(String apikey) {
+    public static URL getMostPopularMovies(String apikey,String sort_by) {
         Uri builtUri = Uri.parse(BASE_MOVIE_URL).buildUpon()
                 .appendPath(DISCOVER)
                 .appendPath(MOVIE)
+                .appendQueryParameter(SORT_BY,sort_by)
                 .appendQueryParameter(KEY,apikey)
                 .build();
 
         URL url = null;
         try {
             url = new URL(builtUri.toString());
+            Log.v("url",url.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

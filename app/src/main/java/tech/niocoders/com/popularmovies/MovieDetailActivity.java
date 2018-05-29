@@ -32,6 +32,11 @@ public class MovieDetailActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.movie_details);
+
+
+
+
+
         wrapper = findViewById(R.id.wrapper);
         slideShow = findViewById(R.id.slideShowView);
         title = findViewById(R.id.movieTitle);
@@ -48,6 +53,9 @@ public class MovieDetailActivity extends AppCompatActivity{
         {
             finish();
         }
+
+        //change the title of the activity
+        ((MovieDetailActivity) this).getSupportActionBar().setTitle(movie.getTitle());
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

@@ -1,7 +1,5 @@
 package tech.niocoders.com.popularmovies;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +44,7 @@ public class JsonParserSingleton {
                     Movies movie = new Movies(voteCount,id,videoUrl,voteAvg,title,popularity,posterPath,originalLanguage,backDropPath,maturity,overView,releaseDate);
                     toReturn.add(movie);
 
-                    Log.d("testing", movie.toString());
+                    //Log.d("testing", movie.toString());
                 }
 
             }
