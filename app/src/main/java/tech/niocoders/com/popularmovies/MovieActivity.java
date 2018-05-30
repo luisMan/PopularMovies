@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,7 +41,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private TextView networkError;
     private ProgressBar loaderIndicator;
     private ArrayList<Movies> movieData;
-    private String SORT_BY ="popularity.desc";
+    private static String SORT_BY ="popularity.desc";
 
 
     @Override
@@ -76,10 +77,12 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
         //lets just check if there is any network available if not lets save our url to bundle
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null){
             SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
             movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
-            getSupportLoaderManager().initLoader(SEACH_QUERY_MOVIE_ID, savedInstanceState, this);
+            if(MovieUtilities.isThereNetworkAvailable(MovieActivity.this)) {
+                getSupportLoaderManager().initLoader(SEACH_QUERY_MOVIE_ID, savedInstanceState, this);
+            }
             //Toast.makeText(getApplicationContext(),SORT_BY,Toast.LENGTH_LONG).show();
         }else{
             //Toast.makeText(getApplicationContext(),"making a refresh",Toast.LENGTH_LONG).show();
@@ -163,7 +166,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
 
-                if (!movie_json.equals("")) {
+                if (null!=movie_json && !movie_json.equals("")) {
                     loaderIndicator.setVisibility(View.INVISIBLE);
                     deliverResult(movie_json);
                 } else {
@@ -218,6 +221,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
 
+        Toast.makeText(getApplicationContext(),"sorty by :"+SORT_BY,Toast.LENGTH_LONG).show();
         URL moviesUrl = MovieUtilities.getMostPopularMovies(getResources().getString(R.string.movie_api_key_v3),SORT_BY);
 
 
@@ -227,6 +231,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
         LoaderManager loaderManager =  getSupportLoaderManager();
         Loader<String> movieSearch = loaderManager.getLoader(SEACH_QUERY_MOVIE_ID);
+
         if(movieSearch==null)
         {
             loaderManager.initLoader(SEACH_QUERY_MOVIE_ID, movieBundle, this);
@@ -259,7 +264,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         } else {
             movie_json =  data;
             movieData =  JsonParserSingleton.getMovieDataFromJeson(movie_json);
-
+            populateMoviesGridUi();
         }
     }
 
@@ -271,43 +276,53 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-            loaderIndicator.setVisibility(View.INVISIBLE);
-            if(null!=movie_json && !TextUtils.isEmpty(movie_json)) {
-                //Toast.makeText(getApplicationContext(),"saving json :"+movie_json,Toast.LENGTH_LONG).show();
-                outState.putString(SEARCH_QUERY_URL_EXTRA, movie_json);
-            }
-            if(null!=SORT_BY&& !TextUtils.isEmpty(SORT_BY)) {
-                //Toast.makeText(getApplicationContext(),"saving sort by :"+SORT_BY,Toast.LENGTH_LONG).show();
-                outState.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
-            }
-
         super.onSaveInstanceState(outState);
+            loaderIndicator.setVisibility(View.INVISIBLE);
+              outState.putString(SEARCH_QUERY_URL_EXTRA, movie_json);
+              outState.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
+              Toast.makeText(getApplicationContext(),
+                      "savedInstanceCalled  sort : "+SORT_BY,Toast.LENGTH_LONG).show();
 
     }
 
-
+    @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+
         movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
         SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
+        Toast.makeText(getApplicationContext(),
+                "onRestore is Called  sort : "+SORT_BY,Toast.LENGTH_LONG).show();
+
         loaderIndicator.setVisibility(View.INVISIBLE);
     }
+
+
 
     //pupulate movie ui
     public void populateMoviesGridUi()
     {
-        grid.setAdapter(new MovieImageAdapter(this));
+        if(grid.getAdapter()==null) {
+            MovieImageAdapter adapter = new MovieImageAdapter(this);
+            grid.setAdapter(adapter);
 
-        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-             //  Toast.makeText(MovieActivity.this, "" + position,
-                 //      Toast.LENGTH_SHORT).show();
-                Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
-                childActivity.putExtra("description", movieData.get(position)); // using the (String name, Parcelable value) overload!
-                startActivity(childActivity);
-            }
-        });
+            grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View v,
+                                        int position, long id) {
+                    Toast.makeText(MovieActivity.this, "" + position,
+                            Toast.LENGTH_SHORT).show();
+                    Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
+                    childActivity.putExtra("description", movieData.get(position)); // using the (String name, Parcelable value) overload!
+                    startActivity(childActivity);
+                }
+            });
+        }else{
+         MovieImageAdapter adapter = (MovieImageAdapter)grid.getAdapter();
+         adapter.notifyDataSetChanged();
+         grid.setAdapter(adapter);
+        }
+
+
 
     }
 

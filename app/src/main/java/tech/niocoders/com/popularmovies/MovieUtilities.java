@@ -28,6 +28,11 @@ public  class MovieUtilities {
     public static String MOVIE ="movie";
     public static String EQUAL="=";
     public static String KEY="api_key";
+    public static String QUERY = "";
+    public static String END_LANGUAGE = "language";
+    public static String LANGUAGE_END_POINT = "en-US";
+    public static String END_PAGE = "page";
+    public static String PAGE_NUMBER = "1";
 
     //sorting params
     public static String POPULARDESC="popularity.desc";
@@ -36,11 +41,19 @@ public  class MovieUtilities {
     //this method will create an url to get the most popular movies and will accept api key as a parameter to complete the search
     //http://api.themoviedb.org/3/discover/movie?api_key=e9825d3aecdf8950a5ff95458c8e9445
     public static URL getMostPopularMovies(String apikey,String sort_by) {
+        if(sort_by.equals("popularity.desc"))
+        {
+            QUERY = "popular";
+        }else{
+            QUERY = "top_rated";
+        }
         Uri builtUri = Uri.parse(BASE_MOVIE_URL).buildUpon()
-                .appendPath(DISCOVER)
                 .appendPath(MOVIE)
+                .appendPath(QUERY)
                 .appendQueryParameter(SORT_BY,sort_by)
                 .appendQueryParameter(KEY,apikey)
+                .appendQueryParameter(END_LANGUAGE,LANGUAGE_END_POINT)
+                .appendQueryParameter(END_PAGE,PAGE_NUMBER)
                 .build();
 
         URL url = null;
