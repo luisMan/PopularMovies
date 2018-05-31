@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +46,8 @@ public  class MovieUtilities {
         }else{
             QUERY = "top_rated";
         }
+
+
         Uri builtUri = Uri.parse(BASE_MOVIE_URL).buildUpon()
                 .appendPath(MOVIE)
                 .appendPath(QUERY)
@@ -59,7 +60,7 @@ public  class MovieUtilities {
         URL url = null;
         try {
             url = new URL(builtUri.toString());
-            Log.v("url",url.toString());
+            //Log.v("url",url.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

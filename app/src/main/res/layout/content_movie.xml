@@ -8,21 +8,27 @@
     tools:context="tech.niocoders.com.popularmovies.MovieActivity"
     tools:showIn="@layout/activity_movie">
 
-    <GridView
-        android:id="@+id/moviesGrid"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark"
-        android:columnWidth="150dp"
-        android:gravity="center"
-        android:horizontalSpacing="5dp"
-        android:numColumns="auto_fit"
-        android:stretchMode="spacingWidthUniform"
-        android:verticalSpacing="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+    <include
+        android:id="@+id/include"
+        layout="@layout/grid_layout"
+        tools:layout_editor_absoluteX="52dp"
+        tools:layout_editor_absoluteY="0dp" />
 
-    </GridView>
+
+    <ProgressBar
+        android:id="@+id/searching_movies"
+        android:layout_width="52dp"
+        android:layout_height="52sp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/include"
+        app:layout_constraintStart_toStartOf="@+id/include"
+        app:layout_constraintTop_toTopOf="@+id/include"></ProgressBar>
 
     <TextView
         android:id="@+id/networkError"
@@ -37,24 +43,10 @@
         android:textColor="@color/colorAccent"
         android:textSize="18sp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/include"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/moviesGrid"></TextView>
-
-
-    <ProgressBar
-        android:id="@+id/searching_movies"
-        android:layout_width="52dp"
-        android:layout_height="52sp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="228dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/moviesGrid"
-        app:layout_constraintStart_toStartOf="@+id/moviesGrid"
-        app:layout_constraintTop_toTopOf="@+id/moviesGrid"></ProgressBar>
+        app:layout_constraintTop_toTopOf="@+id/include"></TextView>
 
 
 </android.support.constraint.ConstraintLayout>

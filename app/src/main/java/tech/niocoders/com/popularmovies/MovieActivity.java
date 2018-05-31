@@ -6,6 +6,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,17 +32,24 @@ import java.util.ArrayList;
 
 
 
-public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
-    public GridView grid;
+public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String>,
+   ImageAdapter.GridItemClickListener {
+
     private static final String SEARCH_QUERY_URL_EXTRA = "movies";
     private static final String SEARCH_SORT_BY_QUERY = "sort_by";
+    private static final String SPINER_POSITION = "spinner";
     private static final int SEACH_QUERY_MOVIE_ID=22;
-    public static String movie_json="";
+    public  static String movie_json="";
     //progressbar and network text notification
     private TextView networkError;
     private ProgressBar loaderIndicator;
     private ArrayList<Movies> movieData;
-    private static String SORT_BY ="popularity.desc";
+    private static String SORT_BY ="";
+    private Spinner spinner;
+    //our Recycle view object references
+    private ImageAdapter mAdapter;
+    private RecyclerView recyclerView;
+    private Toast mToast;
 
 
     @Override
@@ -66,7 +74,12 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                 }
         );
         //Gridlayout
-        grid = findViewById(R.id.moviesGrid);
+
+        recyclerView = findViewById(R.id.movieRecycle);
+        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+
         //EditText network error
         networkError = findViewById(R.id.networkError);
         //ProgreeBar loader indicator
@@ -77,23 +90,18 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
         //lets just check if there is any network available if not lets save our url to bundle
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
             movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
-            if(MovieUtilities.isThereNetworkAvailable(MovieActivity.this)) {
+            if (MovieUtilities.isThereNetworkAvailable(MovieActivity.this)) {
                 getSupportLoaderManager().initLoader(SEACH_QUERY_MOVIE_ID, savedInstanceState, this);
             }
-            //Toast.makeText(getApplicationContext(),SORT_BY,Toast.LENGTH_LONG).show();
         }else{
-            //Toast.makeText(getApplicationContext(),"making a refresh",Toast.LENGTH_LONG).show();
             makeMoviesSearch();
         }
 
 
 
-        /*
-         * Initialize the loader
-         */
 
     }
 
@@ -104,27 +112,39 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         inflater.inflate(R.menu.menu_movie, menu);
 
         MenuItem item = menu.findItem(R.id.spinner);
-        final Spinner spinner = (Spinner) item.getActionView();
-
+        spinner = (Spinner) item.getActionView();
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sort_movies, R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-
         spinner.setAdapter(adapter);
+        //since screen rotation happens my spinner was refreshing my recycler view and adapter
+        //i needed to find a lot of solutions but it was hard to deal with Bundles since always i was returning null to check for extra values
+        //then I figure that the spinner should always preserve a text noAction when there is screen rotation
+        //if there is any additional documentation for me to get knowledge on findind a better solution
+        //please don't hesitate on letting me know.
+        spinner.setSelection(2);
+
+
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             public void onItemSelected(AdapterView<?> arg0, View v, int position, long id)
             {
                //lets make the calls base on item selected
-                if(spinner.getItemAtPosition(position).toString().equals("most popular"))
+                if(spinner.getItemAtPosition(position).toString().equals("top rated"))
                 {
-                    SORT_BY = "popularity.desc";
-                }else{
                     SORT_BY = "vote_average.desc";
-                }
+                    makeMoviesSearch();
+                }else if(spinner.getItemAtPosition(position).toString().equals("most popular")){
 
+                    SORT_BY = "popularity.desc";
+                    makeMoviesSearch();
+
+                }else{
+                    //no action
+                  }
                 //lets proceed to the search
-                makeMoviesSearch();
+
             }
 
             public void onNothingSelected(AdapterView<?> arg0)
@@ -154,10 +174,10 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     public Loader<String> onCreateLoader(final int id, final Bundle args) {
         //here we will launch a new asyntask Loader and ask for movie data
         return new AsyncTaskLoader<String>(this) {
-
+            String json;
             @Override
             protected void onStartLoading() {
-
+                //Log.v("url_onStartLoading","onStartLoadingCalled");
                 if(args==null && !MovieUtilities.isThereNetworkAvailable(MovieActivity.this) )
                 {
                     showNetworkErrorMessage();
@@ -166,9 +186,10 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
 
-                if (null!=movie_json && !movie_json.equals("")) {
+                if (null!= json ) {
+                   // Log.v("url_results",json);
                     loaderIndicator.setVisibility(View.INVISIBLE);
-                    deliverResult(movie_json);
+                    deliverResult(json);
                 } else {
                     loaderIndicator.setVisibility(View.VISIBLE);
                     forceLoad();
@@ -179,7 +200,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             @Override
             public String loadInBackground() {
                 String searchQueryUrlString = args.getString(SEARCH_QUERY_URL_EXTRA);
-
+                 //Log.v("url_back",searchQueryUrlString);
                 /* If the user didn't enter anything, there's nothing to search for */
                 if (searchQueryUrlString == null || TextUtils.isEmpty(searchQueryUrlString)) {
                     return null;
@@ -200,11 +221,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
             @Override
             public void deliverResult(String data) {
-                movie_json = data;
-                if(null!=movie_json && !TextUtils.isEmpty(movie_json)){
-                  movieData  = JsonParserSingleton.getMovieDataFromJeson(movie_json);
-                  populateMoviesGridUi();
-                }
+                 json = data;
                 super.deliverResult(data);
             }
         };
@@ -221,23 +238,24 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
 
-        Toast.makeText(getApplicationContext(),"sorty by :"+SORT_BY,Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),"sorty by :"+SORT_BY,Toast.LENGTH_LONG).show();
         URL moviesUrl = MovieUtilities.getMostPopularMovies(getResources().getString(R.string.movie_api_key_v3),SORT_BY);
-
 
         Bundle movieBundle = new Bundle();
         movieBundle.putString(SEARCH_QUERY_URL_EXTRA, moviesUrl.toString());
         movieBundle.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
 
-        LoaderManager loaderManager =  getSupportLoaderManager();
+
+        LoaderManager loaderManager =   getSupportLoaderManager();
         Loader<String> movieSearch = loaderManager.getLoader(SEACH_QUERY_MOVIE_ID);
 
         if(movieSearch==null)
         {
+           // Log.v("url_create_loader","created loader");
             loaderManager.initLoader(SEACH_QUERY_MOVIE_ID, movieBundle, this);
 
         }else{
-
+           // Log.v("url_restart_loader","restarted loader");
             loaderManager.restartLoader(SEACH_QUERY_MOVIE_ID,movieBundle,this);
         }
 
@@ -262,6 +280,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         if (null == data) {
             Log.d("jsonError","no data has return host!");
         } else {
+           // Log.v("url_onloadFinished","onLoadCalled");
             movie_json =  data;
             movieData =  JsonParserSingleton.getMovieDataFromJeson(movie_json);
             populateMoviesGridUi();
@@ -276,25 +295,23 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-            loaderIndicator.setVisibility(View.INVISIBLE);
+              loaderIndicator.setVisibility(View.INVISIBLE);
+        Log.v("url_savedInstance",SORT_BY);
               outState.putString(SEARCH_QUERY_URL_EXTRA, movie_json);
               outState.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
-              Toast.makeText(getApplicationContext(),
-                      "savedInstanceCalled  sort : "+SORT_BY,Toast.LENGTH_LONG).show();
+        super.onSaveInstanceState(outState);
 
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
         movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
         SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
-        Toast.makeText(getApplicationContext(),
-                "onRestore is Called  sort : "+SORT_BY,Toast.LENGTH_LONG).show();
-
+        Log.v("url_restoreInstance",SORT_BY);
         loaderIndicator.setVisibility(View.INVISIBLE);
+        movieData =  JsonParserSingleton.getMovieDataFromJeson(movie_json);
+        populateMoviesGridUi();
     }
 
 
@@ -302,29 +319,19 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     //pupulate movie ui
     public void populateMoviesGridUi()
     {
-        if(grid.getAdapter()==null) {
-            MovieImageAdapter adapter = new MovieImageAdapter(this);
-            grid.setAdapter(adapter);
 
-            grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View v,
-                                        int position, long id) {
-                    Toast.makeText(MovieActivity.this, "" + position,
-                            Toast.LENGTH_SHORT).show();
-                    Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
-                    childActivity.putExtra("description", movieData.get(position)); // using the (String name, Parcelable value) overload!
-                    startActivity(childActivity);
-                }
-            });
-        }else{
-         MovieImageAdapter adapter = (MovieImageAdapter)grid.getAdapter();
-         adapter.notifyDataSetChanged();
-         grid.setAdapter(adapter);
-        }
+            mAdapter = new ImageAdapter(movieData.size(), this);
+            recyclerView.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
+
+    }//close populate movie
 
 
+    @Override
+    public void onGridItemClick(int clickedItemGrid) {
+        Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
+        childActivity.putExtra("description", movieData.get(clickedItemGrid)); // using the (String name, Parcelable value) overload!
+        startActivity(childActivity);
 
     }
-
-
 }
