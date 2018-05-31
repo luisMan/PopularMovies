@@ -314,7 +314,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         populateMoviesGridUi();
     }
 
-
+    @Override
+    public void onActivityReenter(int resultCode, Intent data) {
+        super.onActivityReenter(resultCode, data);
+        Toast.makeText(getApplicationContext(),"Activity Reenter",Toast.LENGTH_LONG).show();
+    }
 
     //pupulate movie ui
     public void populateMoviesGridUi()
