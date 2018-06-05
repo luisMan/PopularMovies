@@ -35,6 +35,10 @@ public  class MovieUtilities {
 
     //sorting params
     public static String POPULARDESC="popularity.desc";
+
+
+
+
     //https://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&api_key=e9825d3aecdf8950a5ff95458c8e9445
 
     //this method will create an url to get the most popular movies and will accept api key as a parameter to complete the search
@@ -87,6 +91,8 @@ public  class MovieUtilities {
 
         return url;
     }
+
+
     //lets check if we have internet network available to avoid user connectivity exceptions such as app crashes
     //we are accepting context as parameter since we need to get a hold of our current activity
     public static boolean isThereNetworkAvailable(Context context)
@@ -115,7 +121,8 @@ public  class MovieUtilities {
             urlConnection.disconnect();
         }
     }
-    //bellow i will construct more method to make the search of movies more user friendly thus they can search more additional critirias
-    //such as nationalities, kids, most popular, recent on theathers etc..
+
+
+
 
 }

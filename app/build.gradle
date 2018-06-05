@@ -16,6 +16,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    //lets fix the bug resolve version for app com.google.code.findbugs problem
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
+    }
 }
 
 dependencies {
@@ -28,4 +33,13 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //this is going to be use for the youtube api to extrach videos trailers and play within the app
+    implementation 'com.google.android.gms:play-services-plus:7.8.0'
+    implementation 'com.google.apis:google-api-services-youtube:v3-rev120-1.19.0'
+    implementation 'com.google.http-client:google-http-client-android:+'
+    implementation 'com.google.api-client:google-api-client-android:+'
+    implementation 'com.google.api-client:google-api-client-gson:+'
+    implementation 'com.google.code.gson:gson:2.2.4'
+    implementation files('libs/YouTubeAndroidPlayerApi.jar')
 }

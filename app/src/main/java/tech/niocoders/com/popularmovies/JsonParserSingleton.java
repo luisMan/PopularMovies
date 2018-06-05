@@ -1,5 +1,7 @@
 package tech.niocoders.com.popularmovies;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,4 +57,38 @@ public class JsonParserSingleton {
 
         return toReturn;
     }
+
+     public static  ArrayList<videos> getMovieTrailers(MovieDetailActivity view,String json)
+     {
+         ArrayList<videos> toReturn =  new ArrayList<>();
+         if(json!=null && json.length()>0)
+         {
+             JSONArray parser=null;
+             try {
+                 parser = new JSONArray(json);
+                 for(int i=0; i<parser.length(); i++)
+                 {
+                     JSONObject object =  (JSONObject)parser.get(i);
+                     JSONObject ids = object.getJSONObject("id");
+                     JSONObject snippet = object.getJSONObject("snippet");
+                     String id = ids.getString("videoId");
+                     String videoTitle = snippet.getString("title");
+                     String url = snippet.getJSONObject("thumbnails").getJSONObject("default").getString("url");
+
+                     videos video = new videos(id,url,videoTitle);
+                    // Log.v("video parsed ",id+"\n"+url+"\n"+videoTitle);
+                     toReturn.add(video);
+                 }
+
+
+             }catch(JSONException e)
+             {
+                 Log.v("videoError", e.getMessage());
+             }
+
+
+         }
+     return toReturn;
+     }
+
 }

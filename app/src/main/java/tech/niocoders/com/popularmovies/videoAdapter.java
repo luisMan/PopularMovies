@@ -10,15 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * Created by luism on 5/30/2018.
+ * Created by luism on 5/31/2018.
  */
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
+public class videoAdapter extends RecyclerView.Adapter<videoAdapter.movieView> {
 
     public static final String TAG = ImageAdapter.class.getName();
 
 
-    final private GridItemClickListener listener;
+    final private videoAdapter.GridItemClickListener listener;
 
 
     private static int viewHolderCount;
@@ -31,16 +31,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
     }
 
 
-    public ImageAdapter(int itemSize, GridItemClickListener listener)
+    public videoAdapter(int itemSize, videoAdapter.GridItemClickListener listener)
     {
         this.mNumberItems = itemSize;
         this.listener = listener;
         viewHolderCount = 0;
     }
     @Override
-    public movieView onCreateViewHolder(ViewGroup parent, int viewType) {
+    public videoAdapter.movieView onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        int layoutIdForImageItems = R.layout.movie_poster;
+        int layoutIdForImageItems = R.layout.video_poster;
         LayoutInflater inflater =  LayoutInflater.from(context);
 
 
@@ -48,7 +48,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
         boolean shouldAttachToParentImmediately = false;
 
         View view  = inflater.inflate(layoutIdForImageItems,parent,shouldAttachToParentImmediately);
-        movieView movie =  new movieView(context,view);
+        videoAdapter.movieView movie =  new videoAdapter.movieView(context,view);
         movie.movieViewIndex = viewHolderCount;
 
         viewHolderCount++;
@@ -57,8 +57,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
     }
 
     @Override
-    public void onBindViewHolder(movieView holder, int position) {
-     holder.bind(position);
+    public void onBindViewHolder(videoAdapter.movieView holder, int position) {
+        holder.bind(position);
     }
 
     @Override
@@ -77,30 +77,29 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
         public movieView(Context context,View itemView) {
             super(itemView);
             this.context = context;
-            title = itemView.findViewById(R.id.MovieTitle);
-            poster = itemView.findViewById(R.id.moviePoster);
+            title = itemView.findViewById(R.id.videoTitle);
+            poster = itemView.findViewById(R.id.videoThumb);
             poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            poster.setPadding(8, 8, 8, 8);
+
 
             itemView.setOnClickListener(this);
         }
 
 
         void bind(int listIndex) {
-            MovieActivity activity = (MovieActivity)context;
-            final Movies movie =  activity.getMovieData().get(listIndex);
-            //fix number of colums on our gridLayout = 2
-            int numColum = 2;
+            MovieDetailActivity activity = (MovieDetailActivity)context;
+            final videos video =  activity.getTrailers().get(listIndex);
             DisplayMetrics displayMetrics = new DisplayMetrics();
             activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 
-            int height = displayMetrics.heightPixels/2;
-            int width = displayMetrics.widthPixels/3;
+            int height = displayMetrics.heightPixels/3;
+            int width = displayMetrics.widthPixels;
 
-            if(movie!=null) {
-                title.setText(movie.getTitle());
-                PicassoSingleton.populateImageView(movie.getPosterPath(), poster, width, height);
+
+            if(video!=null) {
+                title.setText(video.getVideoTitle());
+                PicassoSingleton.populateImageView(video.getThumbnailsUrl(), poster,width,height);
 
             }
 
