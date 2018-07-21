@@ -14,7 +14,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintDetailLayout"
@@ -70,7 +72,7 @@
                 android:textColor="@color/colorAccent"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.333"
+                app:layout_constraintHorizontal_bias="0.506"
                 app:layout_constraintStart_toEndOf="@+id/voteCount"
                 app:layout_constraintTop_toBottomOf="@+id/slideShowView" />
 
@@ -180,9 +182,44 @@
                     android:id="@+id/trailersRecycle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/colorPrimaryDark"/>
+                    android:background="@color/colorPrimaryDark" />
 
             </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="380dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/backDropPath">
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/ReviewsReciclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="380dp"
+                    android:background="@color/colorPrimaryDark" />
+
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/favorite"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="210dp"
+                android:background="@drawable/favicon1"
+                android:text=""
+                app:layout_constraintBottom_toBottomOf="@+id/slideShowView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.8"
+                app:layout_constraintStart_toStartOf="@+id/movieReleasedDate"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
 

@@ -25,6 +25,7 @@ public  class MovieUtilities {
     public static String PARAM_AND="&";
     public static String BACKSLASH="/";
     public static String MOVIE ="movie";
+    public static String REVIEWS ="reviews";
     public static String EQUAL="=";
     public static String KEY="api_key";
     public static String QUERY = "";
@@ -40,7 +41,6 @@ public  class MovieUtilities {
 
 
     //https://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&api_key=e9825d3aecdf8950a5ff95458c8e9445
-
     //this method will create an url to get the most popular movies and will accept api key as a parameter to complete the search
     //http://api.themoviedb.org/3/discover/movie?api_key=e9825d3aecdf8950a5ff95458c8e9445
     public static URL getMostPopularMovies(String apikey,String sort_by) {
@@ -59,6 +59,27 @@ public  class MovieUtilities {
                 .appendQueryParameter(KEY,apikey)
                 .appendQueryParameter(END_LANGUAGE,LANGUAGE_END_POINT)
                 .appendQueryParameter(END_PAGE,PAGE_NUMBER)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+            //Log.v("url",url.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    public static URL getMoviewReviewsUrl(String apikey,String movieId) {
+
+        Uri builtUri = Uri.parse(BASE_MOVIE_URL).buildUpon()
+                .appendPath(MOVIE)
+                .appendPath(movieId)
+                .appendPath(REVIEWS)
+                .appendQueryParameter(KEY,apikey)
+                .appendQueryParameter(END_LANGUAGE,LANGUAGE_END_POINT)
                 .build();
 
         URL url = null;

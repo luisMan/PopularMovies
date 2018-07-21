@@ -29,6 +29,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MovieDetailActivity" />
         </activity>
+
+
+
+        <provider
+            android:name="DataBase.MoviesContentProvider"
+            android:authorities="DataBase"
+            android:exported="false"/>
+
     </application>
 
 </manifest>

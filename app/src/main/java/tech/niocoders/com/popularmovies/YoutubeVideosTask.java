@@ -12,33 +12,34 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.GeoPoint;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
-import com.google.api.services.youtube.model.Video;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by luism on 5/31/2018.
+ * this asyntack class will be use to extract images and videos ids from youtube api to show trailers within my app
+ * I push myself a little further even though this wasn't required I love challenges.
+ *
  */
 
 
 public class YoutubeVideosTask extends AsyncTask<String,Void, List<SearchResult>> {
 
     private Context context;
+    //youtube api
+    static final HttpTransport transport = AndroidHttp.newCompatibleTransport();
+    static final JsonFactory jsonFactory = new GsonFactory();
+
     public YoutubeVideosTask(Context context)
     {
         this.context = context;
 
     }
-    //youtube api
-    static final HttpTransport transport = AndroidHttp.newCompatibleTransport();
-    static final JsonFactory jsonFactory = new GsonFactory();
+
     @Override
     protected  List<SearchResult> doInBackground(String... voids) {
         try {
@@ -70,7 +71,7 @@ public class YoutubeVideosTask extends AsyncTask<String,Void, List<SearchResult>
             if (parameters.containsKey("type") && parameters.get("type") != "") {
                 search.setType(parameters.get("type").toString());
             }
-            //the fields to return
+            //the fields to return for the trailers :-)
             search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
 
             // Call the API and print results.
@@ -107,29 +108,6 @@ public class YoutubeVideosTask extends AsyncTask<String,Void, List<SearchResult>
             movie.pupolateTrailers(searchResults.toString());
         }
 
-
     }
 
-    //such as nationalities, kids, most popular, recent on theathers etc..
-    private  void prettyPrint(Iterator<Video> iteratorVideoResults) {
-
-
-
-        if (!iteratorVideoResults.hasNext()) {
-            Log.v("iterator"," There aren't any results for your query.");
-        }
-
-        while (iteratorVideoResults.hasNext()) {
-
-            Video singleVideo = iteratorVideoResults.next();
-
-            Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-            GeoPoint location = singleVideo.getRecordingDetails().getLocation();
-
-            Log.v("Video Id", singleVideo.getId());
-            Log.v("Video Title: " , singleVideo.getSnippet().getTitle());
-            Log.v("Video Location: " , location.getLatitude() + ", " + location.getLongitude());
-            Log.v("Video Thumbnail: ", thumbnail.getUrl());
-        }
-    }
 }

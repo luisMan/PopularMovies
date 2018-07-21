@@ -2,15 +2,19 @@ package tech.niocoders.com.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,15 +29,16 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-//the Fresh start of my movie app I have only three days to submit
-//finally finish with school finals will provide much better timing as of 5/27/2018
+
 //Am glad to be part of this amazing opportunity
 //am also illustrating some really nice UI
+//I was  out of the country and just got married.. but hope that this nice features
+//included on my app surprise you. Thank you for this great projects
 
 
 
 public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String>,
-   ImageAdapter.GridItemClickListener {
+   ImageAdapter.GridItemClickListener, DrawerLayout.DrawerListener {
 
     private static final String SEARCH_QUERY_URL_EXTRA = "movies";
     private static final String SEARCH_SORT_BY_QUERY = "sort_by";
@@ -51,28 +56,48 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private RecyclerView recyclerView;
     private Toast mToast;
 
+    //android DrawerLayout variables
+    private DrawerLayout mDrawerLayout;
+    private NavigationView favoriteView;
+    //private ActionBarDrawerToggle mToggle;
 
+    //our private FavoriteLoader for navigationView
+    private favoriteLoader favLoader;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
+        //init favLoader
+        this.favLoader =  new favoriteLoader(this, (RecyclerView)findViewById(R.id.favoriteRecycle));
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getResources().getString(R.string.app_name));
         //toolbar.setSubtitle("Subtitle");
-
         setSupportActionBar(toolbar);
 
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout.addDrawerListener(this);
+
+        favoriteView =  findViewById(R.id.favorite_views);
+        favoriteView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                return true;
+            }
+        });
+
+
         //toolbar.setNavigationIcon(android.R.drawable.ic_dialog_alert);
-        toolbar.setNavigationOnClickListener(
+        /* toolbar.setNavigationOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       // Toast.makeText(MovieActivity.this, "Toolbar", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(MovieActivity.this, "Toolbar"+v.getId()+"clicked", Toast.LENGTH_SHORT).show();
                     }
                 }
-        );
+        );*/
         //Gridlayout
 
         recyclerView = findViewById(R.id.movieRecycle);
@@ -101,6 +126,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
 
+        getSupportActionBar().setHomeButtonEnabled(false);
 
 
     }
@@ -131,11 +157,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             public void onItemSelected(AdapterView<?> arg0, View v, int position, long id)
             {
                //lets make the calls base on item selected
-                if(spinner.getItemAtPosition(position).toString().equals("top rated"))
+                if(spinner.getItemAtPosition(position).toString().equals("Top rated"))
                 {
                     SORT_BY = "vote_average.desc";
                     makeMoviesSearch();
-                }else if(spinner.getItemAtPosition(position).toString().equals("most popular")){
+                }else if(spinner.getItemAtPosition(position).toString().equals("Most popular")){
 
                     SORT_BY = "popularity.desc";
                     makeMoviesSearch();
@@ -153,6 +179,9 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             }
         });
 
+
+
+
         return true;
     }
 
@@ -162,6 +191,14 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+       switch(id)
+       {
+           case R.id.favorites:
+               //here we will show the data base with some class with cursor loaders activity
+               mDrawerLayout.openDrawer(Gravity.START);
+               return true;
+       }
 
         return super.onOptionsItemSelected(item);
     }
@@ -336,6 +373,29 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
         childActivity.putExtra("description", movieData.get(clickedItemGrid)); // using the (String name, Parcelable value) overload!
         startActivity(childActivity);
+
+    }
+
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+            Toast.makeText(getApplicationContext()," Drawer just open ", Toast.LENGTH_LONG).show();
+             favLoader.LoadDataBaseFavoriteList();
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+
+            Toast.makeText(getApplicationContext()," Drawer just Closed ", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {
 
     }
 }

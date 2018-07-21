@@ -91,4 +91,36 @@ public class JsonParserSingleton {
      return toReturn;
      }
 
+
+     //our method to get the movie reviews
+     public static ArrayList<reviews> getMovieReviews(MovieDetailActivity context, String json)
+     {
+         JSONObject parser=null;
+         ArrayList<reviews> toReturn =  new ArrayList<>();
+         try{
+             parser =  new JSONObject(json);
+             if(null!=parser){
+                 JSONArray pages = parser.getJSONArray("results");
+                 for(int i=0; i<pages.length();i++) {
+                     JSONObject object =  (JSONObject)pages.get(i);
+                     String id = object.getString("id").toString();
+                     String author = object.getString("author").toString();
+                     String content = object.getString("content");
+
+                     //lets construct our parceable object :-)
+                     reviews review = new reviews(id,author,content);
+                     toReturn.add(review);
+
+                   //  Log.d("testing", review.toString());
+                 }
+
+             }
+         }catch(JSONException e)
+         {
+             e.printStackTrace();
+         }
+
+         return toReturn;
+
+     }
 }

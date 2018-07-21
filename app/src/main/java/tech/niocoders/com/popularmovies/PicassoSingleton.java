@@ -17,7 +17,6 @@ public class PicassoSingleton{
         Picasso.get()
                 .load(url)
                 .resize(w, h)
-                .centerCrop()
                 .into(view);
     }
 }

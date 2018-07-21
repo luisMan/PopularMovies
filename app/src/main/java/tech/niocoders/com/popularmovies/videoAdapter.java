@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 public class videoAdapter extends RecyclerView.Adapter<videoAdapter.movieView> {
 
-    public static final String TAG = ImageAdapter.class.getName();
+    public static final String TAG = videoAdapter.class.getName();
 
 
     final private videoAdapter.GridItemClickListener listener;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="sort_movies">
-        <item>most popular</item>
-        <item>top rated</item>
-        <item>no action</item>
+        <item>Most popular</item>
+        <item>Top rated</item>
+        <item></item>
     </array>
 </resources>

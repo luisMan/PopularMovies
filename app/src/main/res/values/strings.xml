@@ -3,6 +3,8 @@
     <string name="action_settings">Settings</string>
     <string name="movie_description">Movie Description</string>
     <string name="network_error">There is no internet connectivity host!</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 
 
 
