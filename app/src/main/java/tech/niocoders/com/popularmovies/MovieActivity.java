@@ -354,7 +354,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onActivityReenter(int resultCode, Intent data) {
         super.onActivityReenter(resultCode, data);
-        Toast.makeText(getApplicationContext(),"Activity Reenter",Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),"Activity Reenter",Toast.LENGTH_LONG).show();
     }
 
     //pupulate movie ui
@@ -384,14 +384,14 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public void onDrawerOpened(View drawerView) {
-            Toast.makeText(getApplicationContext()," Drawer just open ", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext()," Drawer just open ", Toast.LENGTH_LONG).show();
              favLoader.LoadDataBaseFavoriteList();
     }
 
     @Override
     public void onDrawerClosed(View drawerView) {
 
-            Toast.makeText(getApplicationContext()," Drawer just Closed ", Toast.LENGTH_LONG).show();
+           // Toast.makeText(getApplicationContext()," Drawer just Closed ", Toast.LENGTH_LONG).show();
     }
 
     @Override
