@@ -26,29 +26,29 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
     private int mNumberItems;
 
 
-    public interface GridItemClickListener{
+    public interface GridItemClickListener {
         void onGridItemClick(int clickedItemGrid);
     }
 
 
-    public ImageAdapter(int itemSize, GridItemClickListener listener)
-    {
+    public ImageAdapter(int itemSize, GridItemClickListener listener) {
         this.mNumberItems = itemSize;
         this.listener = listener;
         viewHolderCount = 0;
     }
+
     @Override
     public movieView onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         int layoutIdForImageItems = R.layout.movie_poster;
-        LayoutInflater inflater =  LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
 
 
         //attach to parent immediately boolean
         boolean shouldAttachToParentImmediately = false;
 
-        View view  = inflater.inflate(layoutIdForImageItems,parent,shouldAttachToParentImmediately);
-        movieView movie =  new movieView(context,view);
+        View view = inflater.inflate(layoutIdForImageItems, parent, shouldAttachToParentImmediately);
+        movieView movie = new movieView(context, view);
         movie.movieViewIndex = viewHolderCount;
 
         viewHolderCount++;
@@ -58,7 +58,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
 
     @Override
     public void onBindViewHolder(movieView holder, int position) {
-     holder.bind(position);
+        holder.bind(position);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
         public ImageView poster;
         private Context context;
 
-        public movieView(Context context,View itemView) {
+        public movieView(Context context, View itemView) {
             super(itemView);
             this.context = context;
             title = itemView.findViewById(R.id.MovieTitle);
@@ -87,18 +87,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
 
 
         void bind(int listIndex) {
-            MovieActivity activity = (MovieActivity)context;
-            final Movies movie =  activity.getMovieData().get(listIndex);
-            //fix number of colums on our gridLayout = 2
-            int numColum = 2;
+            MovieActivity activity = (MovieActivity) context;
+            final Movies movie = activity.getMovieData().get(listIndex);
+
+
             DisplayMetrics displayMetrics = new DisplayMetrics();
             activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 
-            int height = displayMetrics.heightPixels/2;
-            int width = displayMetrics.widthPixels/3;
+            int height = displayMetrics.heightPixels / 2;
+            int width = displayMetrics.widthPixels / 3;
 
-            if(movie!=null) {
+            if (movie != null) {
                 title.setText(movie.getTitle());
                 PicassoSingleton.populateImageView(movie.getPosterPath(), poster, width, height);
 
@@ -108,8 +108,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
 
 
         // COMPLETED (6) Override onClick, passing the clicked item's position (getAdapterPosition()) to mOnClickListener via its onListItemClick method
+
         /**
          * Called whenever a user clicks on an item in the list.
+         *
          * @param v The View that was clicked
          */
         @Override

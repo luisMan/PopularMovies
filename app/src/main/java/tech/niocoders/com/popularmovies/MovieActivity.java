@@ -13,7 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,8 +36,6 @@ import java.util.ArrayList;
 //am also illustrating some really nice UI
 //I was  out of the country and just got married.. but hope that this nice features
 //included on my app surprise you. Thank you for this great projects
-
-
 
 public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String>,
    ImageAdapter.GridItemClickListener, DrawerLayout.DrawerListener {
@@ -87,21 +87,10 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             }
         });
 
-
-        //toolbar.setNavigationIcon(android.R.drawable.ic_dialog_alert);
-        /* toolbar.setNavigationOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        Toast.makeText(MovieActivity.this, "Toolbar"+v.getId()+"clicked", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );*/
-        //Gridlayout
-
         recyclerView = findViewById(R.id.movieRecycle);
-        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
+        int posterWidth = 500;
+        GridLayoutManager layoutManager =
+                new GridLayoutManager(this, calculateBestSpanCount(posterWidth));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
@@ -129,6 +118,15 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         getSupportActionBar().setHomeButtonEnabled(false);
 
 
+    }
+
+    //base on code review I copy your method and implemented it to my code to make my app more compatible with screens
+    private int calculateBestSpanCount(int posterWidth) {
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+        float screenWidth = outMetrics.widthPixels;
+        return Math.round(screenWidth / posterWidth);
     }
 
     @Override

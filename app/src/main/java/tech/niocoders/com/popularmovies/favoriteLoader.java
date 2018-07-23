@@ -9,10 +9,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 
 import DataBase.DataBaseAdapter;
 import DataBase.MovieContract;
@@ -32,14 +35,18 @@ public class favoriteLoader implements
     private RecyclerView favRecycle;
     private DataBaseAdapter CustomCursorAdapter;
 
-    public favoriteLoader(final Context context, RecyclerView rec)
-    {
-         this.context = context;
-         this.favRecycle = rec;
-         this.favRecycle.setLayoutManager(new LinearLayoutManager(context));
+    public favoriteLoader(final Context context, RecyclerView rec) {
+        this.context = context;
+        this.favRecycle = rec;
+        this.favRecycle.setLayoutManager(new LinearLayoutManager(context));
+        int posterWidth = 500;
+        GridLayoutManager layoutManager =
+                new GridLayoutManager(context, calculateBestSpanCount(posterWidth));
+        favRecycle.setLayoutManager(layoutManager);
+        favRecycle.setHasFixedSize(true);
 
         // Initialize the adapter and attach it to the RecyclerView
-        CustomCursorAdapter = new DataBaseAdapter(context,this);
+        CustomCursorAdapter = new DataBaseAdapter(context, this);
         this.favRecycle.setAdapter(CustomCursorAdapter);
 
 
@@ -77,19 +84,28 @@ public class favoriteLoader implements
         }).attachToRecyclerView(favRecycle);
 
 
-
     }
+
+    //base on code review I copy your method and implemented it to my code to make my app more compatible with screens
+    private int calculateBestSpanCount(int posterWidth) {
+        FragmentActivity mainApp = (FragmentActivity) context;
+        Display display = mainApp.getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+        float screenWidth = outMetrics.widthPixels;
+        return Math.round(screenWidth / posterWidth);
+    }
+
     //this is the method to be used and load the fav movies from database
-    public void LoadDataBaseFavoriteList()
-    {
+    public void LoadDataBaseFavoriteList() {
 
         FragmentActivity mainApp = (FragmentActivity) context;
-        LoaderManager loaderManager =   mainApp.getSupportLoaderManager();
+        LoaderManager loaderManager = mainApp.getSupportLoaderManager();
         Loader<Cursor> favMoviews = loaderManager.getLoader(FAV_MOVIES_ID);
-        if(loaderManager==null){
+        if (loaderManager == null) {
 
-            mainApp. getSupportLoaderManager().initLoader(FAV_MOVIES_ID, null, this);
-        }else{
+            mainApp.getSupportLoaderManager().initLoader(FAV_MOVIES_ID, null, this);
+        } else {
             onResume();
         }
 
@@ -173,22 +189,22 @@ public class favoriteLoader implements
         // Determine the values of the wanted data
         int id = custom.getInt(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
         String img = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTERPATH));
-        String headline =  custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
-        long voteCounts =  custom.getLong(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTECOUNT));
+        String headline = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+        long voteCounts = custom.getLong(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTECOUNT));
         String videoUrl = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_VIDEO_URL));
         double voteAvg = custom.getDouble(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTEAVERAGE));
         double popularity = custom.getDouble(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_POPULARITY));
-        String lang =  custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_LANGUAGE));
+        String lang = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_LANGUAGE));
         int maturity = custom.getInt(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_FORMATURE));
-        String desc =  custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_DESCRIPTION));
+        String desc = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_DESCRIPTION));
         String releaseDate = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASEDATE));
         String backDropPath = custom.getString(custom.getColumnIndex(MovieContract.MovieEntry.COLUMN_BACKDROPPATH));
 
-        Movies movie = new Movies(voteCounts,id,videoUrl,voteAvg,headline,popularity,img,lang,backDropPath,maturity,desc,releaseDate);
+        Movies movie = new Movies(voteCounts, id, videoUrl, voteAvg, headline, popularity, img, lang, backDropPath, maturity, desc, releaseDate);
 
 
         Intent childActivity = new Intent(context, MovieDetailActivity.class);
-        childActivity.putExtra("description",movie); // using the (String name, Parcelable value) overload!
+        childActivity.putExtra("description", movie); // using the (String name, Parcelable value) overload!
         context.startActivity(childActivity);
        /* Toast.makeText(context,
                 "Just clicked id = "

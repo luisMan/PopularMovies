@@ -30,16 +30,19 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
     private static int viewHolderCount;
 
 
-    public interface GridItemClickListener{
+    public interface GridItemClickListener {
         void onGridItemClick(int clickedItemGrid);
     }
+
     /**
      * Constructor for the CustomCursorAdapter that initializes the Context.
      *
      * @param mContext the current Context
      */
     public DataBaseAdapter(Context mContext, GridItemClickListener listener) {
-        this.mContext = mContext; this.viewHolderCount =0; this.listener = listener;
+        this.mContext = mContext;
+        this.viewHolderCount = 0;
+        this.listener = listener;
     }
 
 
@@ -57,7 +60,7 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
         boolean shouldAttachToParentImmediately = false;
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.movie_poster, parent, shouldAttachToParentImmediately);
-        DataBaseAdapter.movieView movie =  new DataBaseAdapter.movieView(context,view);
+        DataBaseAdapter.movieView movie = new DataBaseAdapter.movieView(context, view);
         movie.movieViewIndex = viewHolderCount;
 
         viewHolderCount++;
@@ -69,7 +72,7 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
     /**
      * Called by the RecyclerView to display data at a specified position in the Cursor.
      *
-     * @param holder The ViewHolder to bind Cursor data to
+     * @param holder   The ViewHolder to bind Cursor data to
      * @param position The position of the data in the Cursor
      */
     @Override
@@ -81,9 +84,9 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
         // Determine the values of the wanted data
         int id = mCursor.getInt(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID));
         String img = mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTERPATH));
-        String headline =  mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+        String headline = mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
         //Set values
-        MovieActivity activity = (MovieActivity)mContext;
+        MovieActivity activity = (MovieActivity) mContext;
         holder.itemView.setTag(id);
         holder.movieId = id;
         holder.title.setText(headline);
@@ -92,8 +95,8 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
         activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 
-        int height = displayMetrics.heightPixels/2;
-        int width = displayMetrics.widthPixels/3;
+        int height = displayMetrics.heightPixels / 2;
+        int width = displayMetrics.widthPixels / 3;
         PicassoSingleton.populateImageView(img, holder.poster, width, height);
 
         //GradientDrawable priorityCircle = (GradientDrawable) holder.priorityView.getBackground();
@@ -101,7 +104,6 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
 
 
     }
-
 
 
     /**
@@ -137,7 +139,7 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
 
 
     // Inner class for creating ViewHolders
-    class movieView extends RecyclerView.ViewHolder  implements View.OnClickListener{
+    class movieView extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public int movieViewIndex;
         public TextView title;
@@ -158,6 +160,7 @@ public class DataBaseAdapter extends RecyclerView.Adapter<DataBaseAdapter.movieV
             itemView.setOnClickListener(this);
 
         }
+
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
