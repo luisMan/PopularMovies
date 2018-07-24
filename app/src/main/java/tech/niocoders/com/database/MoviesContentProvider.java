@@ -1,4 +1,4 @@
-package DataBase;
+package tech.niocoders.com.database;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;

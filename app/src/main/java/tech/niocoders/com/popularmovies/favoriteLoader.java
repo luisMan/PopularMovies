@@ -16,8 +16,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 
-import DataBase.DataBaseAdapter;
-import DataBase.MovieContract;
+import tech.niocoders.com.database.DataBaseAdapter;
+import tech.niocoders.com.database.MovieContract;
 
 /**
  * Created by luism on 7/20/2018.

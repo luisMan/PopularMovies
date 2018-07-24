@@ -23,7 +23,7 @@ import com.google.android.youtube.player.YouTubeStandalonePlayer;
 
 import java.util.ArrayList;
 
-import DataBase.MovieContract;
+import tech.niocoders.com.database.MovieContract;
 
 /**
  * Created by luism on 5/28/2018.

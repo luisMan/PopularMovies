@@ -1,4 +1,4 @@
-package DataBase;
+package tech.niocoders.com.database;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -9,7 +9,7 @@ import android.provider.BaseColumns;
 
 public class MovieContract  {
 
-    public static final String AUTHORITY  = "DataBase";
+    public static final String AUTHORITY  = "tech.niocoders.com.database";
     public static final Uri BASE_CONTENT_URI =  Uri.parse("content://"+AUTHORITY);
     public static final String PATH_MOVIES  = "movies";
 

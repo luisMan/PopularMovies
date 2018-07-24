@@ -33,8 +33,8 @@
 
 
         <provider
-            android:name="DataBase.MoviesContentProvider"
-            android:authorities="DataBase"
+            android:name="tech.niocoders.com.database.MoviesContentProvider"
+            android:authorities="tech.niocoders.com.database"
             android:exported="false"/>
 
     </application>

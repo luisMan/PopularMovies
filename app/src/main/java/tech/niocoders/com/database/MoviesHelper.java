@@ -1,4 +1,4 @@
-package DataBase;
+package tech.niocoders.com.database;
 
 import android.content.Context;
 import android.database.SQLException;
