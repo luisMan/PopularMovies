@@ -74,13 +74,13 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
         backDropPath = findViewById(R.id.backDropPath);
         favoriteButton = findViewById(R.id.favorite);
         favoriteButton.setOnClickListener(this);
-        movie = (Movies) getIntent().getParcelableExtra("description");
+        movie =  getIntent().getParcelableExtra("description");
         if (movie == null) {
             finish();
         }
 
         //change the title of the activity
-        ((MovieDetailActivity) this).getSupportActionBar().setTitle(movie.getTitle());
+        this.getSupportActionBar().setTitle(movie.getTitle());
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

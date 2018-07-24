@@ -11,7 +11,7 @@
     <include
         android:id="@+id/include"
         layout="@layout/grid_layout"
-        tools:layout_editor_absoluteX="52dp"
+        tools:layout_editor_absoluteX="10dp"
         tools:layout_editor_absoluteY="0dp" />
 
 

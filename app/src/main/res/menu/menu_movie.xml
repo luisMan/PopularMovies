@@ -8,10 +8,10 @@
         app:actionViewClass="android.widget.Spinner"
         app:showAsAction="always" />
 
-    <item
+   <!-- <item
         android:id="@+id/favorites"
         android:title="favorite"
         android:icon="@drawable/favicon"
-        app:showAsAction="always"/>
+        app:showAsAction="always"/>-->
 
 </menu>

@@ -2,7 +2,6 @@ package tech.niocoders.com.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -16,7 +15,6 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -40,6 +38,7 @@ import java.util.ArrayList;
 public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String>,
    ImageAdapter.GridItemClickListener, DrawerLayout.DrawerListener {
 
+    public Bundle globalSavedInstanceState;
     private static final String SEARCH_QUERY_URL_EXTRA = "movies";
     private static final String SEARCH_SORT_BY_QUERY = "sort_by";
     private static final String SPINER_POSITION = "spinner";
@@ -51,9 +50,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private ArrayList<Movies> movieData;
     private static String SORT_BY ="";
     private Spinner spinner;
+    public  int spinnerSelection;
     //our Recycle view object references
     private ImageAdapter mAdapter;
     private RecyclerView recyclerView;
+    private RecyclerView favoriteRecyclerView;
     private Toast mToast;
 
     //android DrawerLayout variables
@@ -67,8 +68,6 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
-        //init favLoader
-        this.favLoader =  new favoriteLoader(this, (RecyclerView)findViewById(R.id.favoriteRecycle));
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -79,20 +78,27 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mDrawerLayout.addDrawerListener(this);
 
-        favoriteView =  findViewById(R.id.favorite_views);
+       /* favoriteView =  findViewById(R.id.favorite_views);
         favoriteView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 return true;
             }
-        });
+        });*/
 
         recyclerView = findViewById(R.id.movieRecycle);
-        int posterWidth = 500;
+        favoriteRecyclerView = findViewById(R.id.favoriteRecycle);
+
+        int posterWidth =Integer.parseInt(getResources().getString(R.string.screen_grid_dimension_width).toString());
         GridLayoutManager layoutManager =
                 new GridLayoutManager(this, calculateBestSpanCount(posterWidth));
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
+        //recyclerView.setHasFixedSize(true);
+
+        //lets assign main favorite cursor loader to our custom GridLoader
+        //init favLoader
+        this.favLoader =  new favoriteLoader(this, favoriteRecyclerView);
+
 
         //EditText network error
         networkError = findViewById(R.id.networkError);
@@ -117,7 +123,10 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
         getSupportActionBar().setHomeButtonEnabled(false);
 
-
+      if(savedInstanceState!=null)
+      {
+          this.globalSavedInstanceState = savedInstanceState;
+      }
     }
 
     //base on code review I copy your method and implemented it to my code to make my app more compatible with screens
@@ -144,9 +153,8 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         //since screen rotation happens my spinner was refreshing my recycler view and adapter
         //i needed to find a lot of solutions but it was hard to deal with Bundles since always i was returning null to check for extra values
         //then I figure that the spinner should always preserve a text noAction when there is screen rotation
-        //if there is any additional documentation for me to get knowledge on findind a better solution
+        //if there is any additional documentation for me to get knowledge on finding a better solution
         //please don't hesitate on letting me know.
-        spinner.setSelection(2);
 
 
 
@@ -154,20 +162,27 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         {
             public void onItemSelected(AdapterView<?> arg0, View v, int position, long id)
             {
+
                //lets make the calls base on item selected
                 if(spinner.getItemAtPosition(position).toString().equals("Top rated"))
                 {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    favoriteRecyclerView.setVisibility(View.INVISIBLE);
                     SORT_BY = "vote_average.desc";
                     makeMoviesSearch();
                 }else if(spinner.getItemAtPosition(position).toString().equals("Most popular")){
-
+                    recyclerView.setVisibility(View.VISIBLE);
+                    favoriteRecyclerView.setVisibility(View.INVISIBLE);
                     SORT_BY = "popularity.desc";
                     makeMoviesSearch();
 
-                }else{
+                }else if(spinner.getItemAtPosition(position).toString().equals("Favorite")){
+                    recyclerView.setVisibility(View.INVISIBLE);
+                    favoriteRecyclerView.setVisibility(View.VISIBLE);
+                    favLoader.LoadDataBaseFavoriteList();
+                 }else {
                     //no action
                   }
-                //lets proceed to the search
 
             }
 
@@ -176,8 +191,6 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
             }
         });
-
-
 
 
         return true;
@@ -192,10 +205,12 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
        switch(id)
        {
-           case R.id.favorites:
+          // case R.id.favorites:
                //here we will show the data base with some class with cursor loaders activity
-               mDrawerLayout.openDrawer(Gravity.START);
-               return true;
+               //since my own ui didn't pass then am letting this commented and will implement the code base on coding task from
+               //project rubrics
+              // mDrawerLayout.openDrawer(Gravity.START);
+           //    return true;
        }
 
         return super.onOptionsItemSelected(item);
@@ -284,6 +299,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         LoaderManager loaderManager =   getSupportLoaderManager();
         Loader<String> movieSearch = loaderManager.getLoader(SEACH_QUERY_MOVIE_ID);
 
+
         if(movieSearch==null)
         {
            // Log.v("url_create_loader","created loader");
@@ -301,6 +317,15 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
         loaderIndicator.setVisibility(View.INVISIBLE);
         networkError.setVisibility(View.VISIBLE);
+
+    }
+
+    public void RemovedNetworkErrorMessage()
+    {
+        if(!MovieUtilities.isThereNetworkAvailable(this)) {
+            loaderIndicator.setVisibility(View.INVISIBLE);
+            networkError.setVisibility(View.INVISIBLE);
+        }
 
     }
 
@@ -362,7 +387,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             mAdapter = new ImageAdapter(movieData.size(), this);
             recyclerView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
-
+            RemovedNetworkErrorMessage();
     }//close populate movie
 
 
@@ -383,7 +408,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onDrawerOpened(View drawerView) {
             //Toast.makeText(getApplicationContext()," Drawer just open ", Toast.LENGTH_LONG).show();
-             favLoader.LoadDataBaseFavoriteList();
+             //favLoader.LoadDataBaseFavoriteList();
     }
 
     @Override

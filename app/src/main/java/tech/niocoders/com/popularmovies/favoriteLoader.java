@@ -10,7 +10,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
@@ -38,8 +37,8 @@ public class favoriteLoader implements
     public favoriteLoader(final Context context, RecyclerView rec) {
         this.context = context;
         this.favRecycle = rec;
-        this.favRecycle.setLayoutManager(new LinearLayoutManager(context));
-        int posterWidth = 500;
+
+        int posterWidth = Integer.parseInt(context.getResources().getString(R.string.screen_grid_dimension_width).toString());
         GridLayoutManager layoutManager =
                 new GridLayoutManager(context, calculateBestSpanCount(posterWidth));
         favRecycle.setLayoutManager(layoutManager);
@@ -86,6 +85,8 @@ public class favoriteLoader implements
 
     }
 
+    //get customCursorLoader
+
     //base on code review I copy your method and implemented it to my code to make my app more compatible with screens
     private int calculateBestSpanCount(int posterWidth) {
         FragmentActivity mainApp = (FragmentActivity) context;
@@ -101,7 +102,6 @@ public class favoriteLoader implements
 
         FragmentActivity mainApp = (FragmentActivity) context;
         LoaderManager loaderManager = mainApp.getSupportLoaderManager();
-        Loader<Cursor> favMoviews = loaderManager.getLoader(FAV_MOVIES_ID);
         if (loaderManager == null) {
 
             mainApp.getSupportLoaderManager().initLoader(FAV_MOVIES_ID, null, this);

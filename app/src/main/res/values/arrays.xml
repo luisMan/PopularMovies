@@ -3,6 +3,7 @@
     <array name="sort_movies">
         <item>Most popular</item>
         <item>Top rated</item>
+        <item>Favorite</item>
         <item></item>
     </array>
 </resources>

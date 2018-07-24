@@ -5,6 +5,7 @@
     <string name="network_error">There is no internet connectivity host!</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="screen_grid_dimension_width">800</string>
 
 
 
