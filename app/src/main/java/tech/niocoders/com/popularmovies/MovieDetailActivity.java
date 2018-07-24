@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +54,8 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
     //our reviews recyclerview
     private RecyclerView reviews;
 
+    private ScrollView movieDetails;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
 
 
         wrapper = findViewById(R.id.wrapper);
+        movieDetails = findViewById(R.id.movieDetails);
         slideShow = findViewById(R.id.slideShowView);
         title = findViewById(R.id.movieTitle);
         voteCounts = findViewById(R.id.voteCount);
@@ -274,5 +278,24 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
 
         }
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putIntArray("MOVIE_SCROLL_POSITION",
+                new int[]{ movieDetails.getScrollX(), movieDetails.getScrollY()});
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        final int[] position = savedInstanceState.getIntArray("MOVIE_SCROLL_POSITION");
+        if(position != null)
+            movieDetails.post(new Runnable() {
+                public void run() {
+                    movieDetails.scrollTo(position[0], position[1]);
+                }
+            });
     }
 }

@@ -42,6 +42,8 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private static final String SEARCH_QUERY_URL_EXTRA = "movies";
     private static final String SEARCH_SORT_BY_QUERY = "sort_by";
     private static final String SPINER_POSITION = "spinner";
+    private static final String RECYCLER_POSITION_X = "RECYCLER_POSITION_X";
+    private static final String RECYCLER_POSITION_Y = "RECYCLER_POSITION_Y";
     private static final int SEACH_QUERY_MOVIE_ID=22;
     public  static String movie_json="";
     //progressbar and network text notification
@@ -126,6 +128,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
       if(savedInstanceState!=null)
       {
           this.globalSavedInstanceState = savedInstanceState;
+
       }
     }
 
@@ -156,12 +159,13 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         //if there is any additional documentation for me to get knowledge on finding a better solution
         //please don't hesitate on letting me know.
 
-
+        spinner.setSelection(spinnerSelection);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             public void onItemSelected(AdapterView<?> arg0, View v, int position, long id)
             {
+                spinnerSelection = position;
 
                //lets make the calls base on item selected
                 if(spinner.getItemAtPosition(position).toString().equals("Top rated"))
@@ -176,13 +180,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                     SORT_BY = "popularity.desc";
                     makeMoviesSearch();
 
-                }else if(spinner.getItemAtPosition(position).toString().equals("Favorite")){
+                }else {
                     recyclerView.setVisibility(View.INVISIBLE);
                     favoriteRecyclerView.setVisibility(View.VISIBLE);
                     favLoader.LoadDataBaseFavoriteList();
-                 }else {
-                    //no action
-                  }
+                 }
 
             }
 
@@ -230,8 +232,10 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                 //Log.v("url_onStartLoading","onStartLoadingCalled");
                 if(args==null && !MovieUtilities.isThereNetworkAvailable(MovieActivity.this) )
                 {
-                    showNetworkErrorMessage();
+                    OutputConnectivityMessage(0);
                     return;
+                }else{
+                    OutputConnectivityMessage(1);
                 }
 
 
@@ -283,8 +287,12 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         //lets check is there is network availabilities if not lets show the error
         if(!MovieUtilities.isThereNetworkAvailable(this))
         {
-          showNetworkErrorMessage();
+
+            OutputConnectivityMessage(0);
           return;
+        }else{
+
+            OutputConnectivityMessage(1);
         }
 
 
@@ -312,22 +320,22 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     }
 
-    public void showNetworkErrorMessage()
+    //1 is for true connection
+    //0 for no connection
+    public void OutputConnectivityMessage(int state)
     {
 
-        loaderIndicator.setVisibility(View.INVISIBLE);
-        networkError.setVisibility(View.VISIBLE);
-
-    }
-
-    public void RemovedNetworkErrorMessage()
-    {
-        if(!MovieUtilities.isThereNetworkAvailable(this)) {
+        if(state==0) {
+            loaderIndicator.setVisibility(View.INVISIBLE);
+            networkError.setVisibility(View.VISIBLE);
+        }else{
             loaderIndicator.setVisibility(View.INVISIBLE);
             networkError.setVisibility(View.INVISIBLE);
         }
 
     }
+
+
 
     @Override
     public void onLoadFinished(Loader<String> loader, String data) {
@@ -359,6 +367,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         Log.v("url_savedInstance",SORT_BY);
               outState.putString(SEARCH_QUERY_URL_EXTRA, movie_json);
               outState.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
+              outState.putInt(SPINER_POSITION,spinnerSelection);
         super.onSaveInstanceState(outState);
 
     }
@@ -366,11 +375,19 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        if(!MovieUtilities.isThereNetworkAvailable(this))
+        {
+            OutputConnectivityMessage(0);
+        }else{
+            OutputConnectivityMessage(1);
+        }
         movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
         SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
+        spinnerSelection = savedInstanceState.getInt(SPINER_POSITION);
         Log.v("url_restoreInstance",SORT_BY);
         loaderIndicator.setVisibility(View.INVISIBLE);
         movieData =  JsonParserSingleton.getMovieDataFromJeson(movie_json);
+
         populateMoviesGridUi();
     }
 
@@ -387,7 +404,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             mAdapter = new ImageAdapter(movieData.size(), this);
             recyclerView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
-            RemovedNetworkErrorMessage();
+
     }//close populate movie
 
 
