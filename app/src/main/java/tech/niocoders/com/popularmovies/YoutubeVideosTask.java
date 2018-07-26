@@ -58,7 +58,7 @@ public class YoutubeVideosTask extends AsyncTask<String,Void, List<SearchResult>
             parameters.put("type", "video");
             YouTube.Search.List search = youtube.search().list(parameters.get("part").toString());
             //set the key
-            search.setKey(context.getResources().getString(R.string.youtube_api_key));
+            search.setKey(BuildConfig.AIzaSyDU7kuvsG_RbSNnfZz_ONpJMWZaPpUtcjc);
 
             if (parameters.containsKey("maxResults")) {
                 search.setMaxResults(Long.parseLong(parameters.get("maxResults").toString()));

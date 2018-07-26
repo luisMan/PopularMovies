@@ -1,7 +1,11 @@
 package tech.niocoders.com.popularmovies;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -14,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,8 +48,8 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private static final String SEARCH_QUERY_URL_EXTRA = "movies";
     private static final String SEARCH_SORT_BY_QUERY = "sort_by";
     private static final String SPINER_POSITION = "spinner";
-    private static final String RECYCLER_POSITION_X = "RECYCLER_POSITION_X";
-    private static final String RECYCLER_POSITION_Y = "RECYCLER_POSITION_Y";
+    private static final String RECYCLERVIEW_STATE = "RECYCLERVIEW_STATE";
+    private static  GridLayoutManager layoutManager;
     private static final int SEACH_QUERY_MOVIE_ID=22;
     public  static String movie_json="";
     //progressbar and network text notification
@@ -92,9 +98,10 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         favoriteRecyclerView = findViewById(R.id.favoriteRecycle);
 
         int posterWidth =Integer.parseInt(getResources().getString(R.string.screen_grid_dimension_width).toString());
-        GridLayoutManager layoutManager =
+        layoutManager =
                 new GridLayoutManager(this, calculateBestSpanCount(posterWidth));
         recyclerView.setLayoutManager(layoutManager);
+
         //recyclerView.setHasFixedSize(true);
 
         //lets assign main favorite cursor loader to our custom GridLoader
@@ -159,32 +166,35 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         //if there is any additional documentation for me to get knowledge on finding a better solution
         //please don't hesitate on letting me know.
 
-        spinner.setSelection(spinnerSelection);
+        spinner.setSelection(spinnerSelection,false);
+
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             public void onItemSelected(AdapterView<?> arg0, View v, int position, long id)
             {
+
                 spinnerSelection = position;
+                if(null!=v) {
+                    Toast.makeText(getApplicationContext(),"the onRotation call !!",Toast.LENGTH_LONG).show();
+                    //lets make the calls base on item selected
+                    if (spinner.getItemAtPosition(position).toString().equals("Top rated")) {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        favoriteRecyclerView.setVisibility(View.INVISIBLE);
+                        SORT_BY = "vote_average.desc";
+                        makeMoviesSearch();
+                    } else if (spinner.getItemAtPosition(position).toString().equals("Most popular")) {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        favoriteRecyclerView.setVisibility(View.INVISIBLE);
+                        SORT_BY = "popularity.desc";
+                        makeMoviesSearch();
 
-               //lets make the calls base on item selected
-                if(spinner.getItemAtPosition(position).toString().equals("Top rated"))
-                {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    favoriteRecyclerView.setVisibility(View.INVISIBLE);
-                    SORT_BY = "vote_average.desc";
-                    makeMoviesSearch();
-                }else if(spinner.getItemAtPosition(position).toString().equals("Most popular")){
-                    recyclerView.setVisibility(View.VISIBLE);
-                    favoriteRecyclerView.setVisibility(View.INVISIBLE);
-                    SORT_BY = "popularity.desc";
-                    makeMoviesSearch();
-
-                }else {
-                    recyclerView.setVisibility(View.INVISIBLE);
-                    favoriteRecyclerView.setVisibility(View.VISIBLE);
-                    favLoader.LoadDataBaseFavoriteList();
-                 }
+                    } else {
+                        recyclerView.setVisibility(View.INVISIBLE);
+                        favoriteRecyclerView.setVisibility(View.VISIBLE);
+                        favLoader.LoadDataBaseFavoriteList();
+                    }
+                }//close view check
 
             }
 
@@ -297,7 +307,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
         //Toast.makeText(getApplicationContext(),"sorty by :"+SORT_BY,Toast.LENGTH_LONG).show();
-        URL moviesUrl = MovieUtilities.getMostPopularMovies(getResources().getString(R.string.movie_api_key_v3),SORT_BY);
+        URL moviesUrl = MovieUtilities.getMostPopularMovies(BuildConfig.e9825d3aecdf8950a5ff95458c8e9445,SORT_BY);
 
         Bundle movieBundle = new Bundle();
         movieBundle.putString(SEARCH_QUERY_URL_EXTRA, moviesUrl.toString());
@@ -368,6 +378,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
               outState.putString(SEARCH_QUERY_URL_EXTRA, movie_json);
               outState.putString(SEARCH_SORT_BY_QUERY, SORT_BY);
               outState.putInt(SPINER_POSITION,spinnerSelection);
+              outState.putParcelable(RECYCLERVIEW_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
         super.onSaveInstanceState(outState);
 
     }
@@ -381,6 +392,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         }else{
             OutputConnectivityMessage(1);
         }
+        globalSavedInstanceState = savedInstanceState;
         movie_json = savedInstanceState.getString(SEARCH_QUERY_URL_EXTRA);
         SORT_BY = savedInstanceState.getString(SEARCH_SORT_BY_QUERY);
         spinnerSelection = savedInstanceState.getInt(SPINER_POSITION);
@@ -404,15 +416,38 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             mAdapter = new ImageAdapter(movieData.size(), this);
             recyclerView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
+            if(globalSavedInstanceState!=null){
+            Parcelable state = globalSavedInstanceState.getParcelable(RECYCLERVIEW_STATE);
+            if(state!=null)
+            {
+                recyclerView.getLayoutManager().onRestoreInstanceState(state);
+            }}
+
 
     }//close populate movie
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void onGridItemClick(int clickedItemGrid) {
+    public void onGridItemClick(int clickedItemGrid, View v) {
         Intent childActivity = new Intent(MovieActivity.this, MovieDetailActivity.class);
         childActivity.putExtra("description", movieData.get(clickedItemGrid)); // using the (String name, Parcelable value) overload!
-        startActivity(childActivity);
+        ImageView img =  v.findViewById(R.id.moviePoster);
+        TextView title = v.findViewById(R.id.MovieTitle);
+        Pair<View, String> p1 = Pair.create((View)img, "moviePoster");
+        Pair<View, String> p2 = Pair.create((View)title, "movieTitle");
+        ActivityOptions options = ActivityOptions.
+                makeSceneTransitionAnimation(this,
+                        p1,p2);
+        // Check if we're running on Android 5.0 or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Apply activity transition
+            startActivity(childActivity, options.toBundle());
+        } else {
+            // Swap without transition
+            startActivity(childActivity);
+        }
+
 
     }
 

@@ -27,7 +27,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
 
 
     public interface GridItemClickListener{
-        void onGridItemClick(int clickedItemGrid);
+        void onGridItemClick(int clickedItemGrid, View v);
     }
 
 
@@ -115,7 +115,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.movieView> {
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            listener.onGridItemClick(clickedPosition);
+            listener.onGridItemClick(clickedPosition,v);
         }
     }
 }

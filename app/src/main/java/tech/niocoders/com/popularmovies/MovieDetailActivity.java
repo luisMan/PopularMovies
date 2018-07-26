@@ -1,17 +1,20 @@
 package tech.niocoders.com.popularmovies;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -91,6 +94,35 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
+
+
+        //lets animate with transitions for background and title sweet thank you for all this great content am going to be an
+        //amazing developer
+        AnimatorSet animationSet = new AnimatorSet();
+
+        //Translating Details_Card in Y Scale
+        ObjectAnimator wrapper_y = ObjectAnimator.ofFloat(wrapper, View.TRANSLATION_Y, 70);
+        wrapper_y.setDuration(2500);
+        wrapper_y.setRepeatMode(ValueAnimator.REVERSE);
+        wrapper_y.setRepeatCount(ValueAnimator.INFINITE);
+        wrapper_y.setInterpolator(new LinearInterpolator());
+
+        //Translating Movie_Cover in Y Scale
+        ObjectAnimator poster_x = ObjectAnimator.ofFloat(slideShow, View.TRANSLATION_X, 30);
+        poster_x.setDuration(3000);
+        poster_x.setRepeatMode(ValueAnimator.REVERSE);
+        poster_x.setRepeatCount(ValueAnimator.INFINITE);
+        poster_x.setInterpolator(new LinearInterpolator());
+
+        ObjectAnimator backdrop_x = ObjectAnimator.ofFloat(backDropPath, View.TRANSLATION_X, 30);
+        backdrop_x.setDuration(3000);
+        backdrop_x.setRepeatMode(ValueAnimator.REVERSE);
+        backdrop_x.setRepeatCount(ValueAnimator.INFINITE);
+        backdrop_x.setInterpolator(new LinearInterpolator());
+
+        animationSet.playTogether(wrapper_y,poster_x,backdrop_x);
+        animationSet.start();
+
         //use picasso to load image into view
         PicassoSingleton.populateImageView(movie.getPosterPath(), wrapper, width, height);
         PicassoSingleton.populateImageView(movie.getPosterPath(), slideShow, width * 2, height * 2);
@@ -153,7 +185,8 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
         int id = item.getItemId();
         // When the home button is pressed, take the user back to the parent activity
         if (id == android.R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
+            supportFinishAfterTransition();
+            //NavUtils.navigateUpFromSameTask(this);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -162,7 +195,7 @@ public class MovieDetailActivity extends AppCompatActivity implements videoAdapt
     public void onGridItemClick(int clickedItemGrid) {
         //lets provide click listener to all our videos and play it on our own youtube player
         //without having the user to navigate out of my app :-)
-        Intent intent = YouTubeStandalonePlayer.createVideoIntent(this, getResources().getString(R.string.youtube_api_key), getTrailers().get(clickedItemGrid).getVideoId());
+        Intent intent = YouTubeStandalonePlayer.createVideoIntent(this, BuildConfig.AIzaSyDU7kuvsG_RbSNnfZz_ONpJMWZaPpUtcjc, getTrailers().get(clickedItemGrid).getVideoId());
         startActivity(intent);
 
 

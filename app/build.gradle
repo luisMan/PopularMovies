@@ -10,12 +10,29 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    //our api keys for security purposes and prevent reverse engineer noobs :-)
+
+
+
     buildTypes {
+        debug{
+            buildConfigField 'String', "e9825d3aecdf8950a5ff95458c8e9445", MOVIE_API_KEY_V3
+            resValue 'string', "e9825d3aecdf8950a5ff95458c8e9445", MOVIE_API_KEY_V3
+            buildConfigField 'String', "AIzaSyDU7kuvsG_RbSNnfZz_ONpJMWZaPpUtcjc", YOUTUBE_API_KEY
+            resValue 'string', "AIzaSyDU7kuvsG_RbSNnfZz_ONpJMWZaPpUtcjc", YOUTUBE_API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "e9825d3aecdf8950a5ff95458c8e9445", MOVIE_API_KEY_V3
+            resValue 'string', "e9825d3aecdf8950a5ff95458c8e9445", MOVIE_API_KEY_V3
+            buildConfigField 'String', "AIzaSyDU7kuvsG_RbSNnfZz_ONpJMWZaPpUtcjc", YOUTUBE_API_KEY
+            resValue 'string', "AIzaSyDU7kuvsG_RbSNnfZz_ONpJMWZaPpUtcjc", YOUTUBE_API_KEY
         }
     }
+
+
 
     //lets fix the bug resolve version for app com.google.code.findbugs problem
     configurations.all {

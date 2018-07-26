@@ -25,7 +25,7 @@ public class ReviewsTask extends AsyncTask<String, Void, String> {
             return null;
         try {
             //lets create our url path
-            URL pathUrl =  MovieUtilities.getMoviewReviewsUrl(myContext.getResources().getString(R.string.movie_api_key_v3).toString(),id);
+            URL pathUrl =  MovieUtilities.getMoviewReviewsUrl(BuildConfig.e9825d3aecdf8950a5ff95458c8e9445,id);
             String reviewsResult = MovieUtilities.getResponseFromHttpUrl(pathUrl);
             return reviewsResult;
 

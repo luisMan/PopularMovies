@@ -8,6 +8,7 @@
 
     <ImageView
         android:id="@+id/moviePoster"
+        android:transitionName="moviePoster"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
@@ -19,6 +20,7 @@
 
     <TextView
         android:id="@+id/MovieTitle"
+        android:transitionName="movieTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
